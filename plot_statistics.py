@@ -19,11 +19,13 @@ def gen_gif(img_dir, gif_path):
     imageio.mimsave(gif_path, images, duration=(12.0 / len(images)))
 
 
-def plot_field(X, Y, fig_path, annotations=[]):
+def plot_field(X, Y, fig_path, X_hat=[], Y_hat=[], annotations=[]):
     plt.scatter(X, Y, s=1)
-    for ann in annotations:
-        plt.scatter(ann[0], ann[1], s=((fileding_range(ann[0], ann[1]) * 100.0)), alpha=0.5)
-    plt.title('{} samples'.format(len(X)))
+    plt.scatter(X_hat, Y_hat, s=1, color='#FF7575')
+    for idx, ann in enumerate(annotations):
+        plt.scatter(ann[0], ann[1], s=30, alpha=0.5, color='#888888')
+        plt.annotate(idx+1, (ann[0], ann[1]))
+    plt.title('{} samples'.format(len(X) + len(X_hat)))
     plt.savefig(fig_path)
     plt.close()
 
@@ -55,5 +57,5 @@ def plot_angle(X, Y, fig_path):
     plt.plot(x, p)
     plt.xlabel('degree')
     plt.ylabel('ratio')
-    plt.savefig('angle.png')
+    plt.savefig(fig_path)
     plt.close()

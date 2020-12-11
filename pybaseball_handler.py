@@ -17,21 +17,32 @@ def find_player_by_id(name):
         c.execute('INSERT INTO player (name, id) VALUES ("{}", {})'.format(name, id_[0]))
     conn.commit()
     conn.close()
-    return id_[0]
+    return '_'.join(name.split()), id_[0]
 
+
+def __init_directory(start, end, player):
+    try:
+        os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end)))
+        os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end), 'slides'))
+        os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end), 'frames'))
+    except: pass
+    return os.path.join('img', '{}_{}_{}'.format(player, start, end))
 
 def get_history_data(start_dt, end_dt, cols=['hc_x', 'hc_y'], batter=None, pitcher=None):
     assert not batter or not pitcher, 'you can only have general results or specify one batter or one pitcher'
+    if batter: raw, batter = find_player_by_id(batter)
+    elif pitcher: raw, pitcher = find_player_by_id(pitcher)
+    else: raw = ''
     cache_path = os.path.join(cache_dir, '{}_{}_{}_{}.h5'.format(start_dt, end_dt, batter, pitcher))
     store = pd.HDFStore(cache_path)
     try:
         df = store['df']
     except:
         if batter: df = statcast_batter(start_dt=start_dt, end_dt=end_dt, player_id=batter)
-        elif pitcher: df = statcast_batter(start_dt=start_dt, end_dt=end_dt, player_id=pitcher)
+        elif pitcher: df = statcast_pitcher(start_dt=start_dt, end_dt=end_dt, player_id=pitcher)
         else: df = statcast(start_dt=start_dt, end_dt=end_dt)
         store['df'] = df
-    home = (130, 200)
+    home = (127, 200)
     df['hc_x'] = df['hc_x'] - home[0]
     df['hc_y'] = home[1] - df['hc_y']
-    return df[cols]
+    return __init_directory(start_dt, end_dt, raw), df[cols]
