@@ -22,6 +22,9 @@ def find_player_by_id(name):
 
 def __init_directory(start, end, player):
     try:
+        os.mkdir('img')
+    except: pass
+    try:
         os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end)))
         os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end), 'slides'))
         os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end), 'frames'))
