@@ -5,7 +5,26 @@ from pybaseball import statcast, playerid_lookup, statcast_pitcher, statcast_bat
 
 
 cache_dir = '.cache'
+try: os.mkdir(cache_dir)
+except: pass
+
 cache_db = os.path.join(cache_dir, 'lookup.db')
+if not os.path.exists(os.path.join(cache_dir, 'lookup.db')):
+    conn = sqlite3.connect(cache_db)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE `player` (
+        `name` CHAR(64) NOT NULL,
+        `id` INT,
+        PRIMARY KEY (`name`)
+        );'''
+    )
+    conn.commit()
+    conn.close()
+
+img_base_dir = 'img'
+try:
+    os.mkdir(img_base_dir)
+except: pass
 
 def find_player_by_id(name):
     conn = sqlite3.connect(cache_db)
@@ -22,14 +41,11 @@ def find_player_by_id(name):
 
 def __init_directory(start, end, player):
     try:
-        os.mkdir('img')
+        os.mkdir(os.path.join(img_base_dir, '{}_{}_{}'.format(player, start, end)))
+        os.mkdir(os.path.join(img_base_dir, '{}_{}_{}'.format(player, start, end), 'slides'))
+        os.mkdir(os.path.join(img_base_dir, '{}_{}_{}'.format(player, start, end), 'frames'))
     except: pass
-    try:
-        os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end)))
-        os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end), 'slides'))
-        os.mkdir(os.path.join('img', '{}_{}_{}'.format(player, start, end), 'frames'))
-    except: pass
-    return os.path.join('img', '{}_{}_{}'.format(player, start, end))
+    return os.path.join(img_base_dir, '{}_{}_{}'.format(player, start, end))
 
 def get_history_data(start_dt, end_dt, cols=['hc_x', 'hc_y'], batter=None, pitcher=None):
     assert not batter or not pitcher, 'you can only have general results or specify one batter or one pitcher'
